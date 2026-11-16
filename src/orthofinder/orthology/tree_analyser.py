@@ -67,6 +67,7 @@ class TreeAnalyser(object):
             exist_msa=True,
             write_hog_tree=True,
             other_names=None,
+            rich_output=False,
     ):
         """other_names: {sequence ID: name} of the "Other" genes of the putative xenologues
         (gene_ids.prefixes_if_shared), None: sequence_dict"""
@@ -92,6 +93,7 @@ class TreeAnalyser(object):
         self.exist_msa = exist_msa
         self.write_hog_tree = write_hog_tree
         self.other_names = other_names
+        self.rich_output = rich_output
 
 
     def analyse_tree(self, iog, n_ortho_acc=None):
@@ -159,7 +161,7 @@ class TreeAnalyser(object):
                 self.q_split_paralogous_clades,
             )
 
-            self.write_resolved_tree(recon_tree, iog)
+            self.write_resolved_tree(recon_tree, iog, rich_output=self.rich_output)
 
             if n_ortho_acc is not None:
                 # Only count trees that were analysed completely.
@@ -194,7 +196,7 @@ class TreeAnalyser(object):
                 "cached_hogs": [],
             }
 
-    def write_resolved_tree(self, recon_tree, iog):
+    def write_resolved_tree(self, recon_tree, iog, rich_output: bool = False):
         """
         The resolved gene tree: with the gene names (the second pass, the results),
         or with the gene IDs (the first pass, read by the update of the orthogroups:
@@ -210,7 +212,7 @@ class TreeAnalyser(object):
         else:
             ids_map = self.spec_seq_dict
         try:
-            phylo_taxa.rename_tree_taxa(recon_tree, fn, ids_map, q_support=False, q_fix_negatives=True)
+            phylo_taxa.rename_tree_taxa(recon_tree, fn, ids_map, q_support=False, q_fix_negatives=True, rich_output=rich_output)
         except Exception as e:
             raise parallel_task_manager.WorkerError(
                 "ERROR: Cannot write the resolved gene tree of OG%07d, %s (%s: %s)" % (iog, fn, type(e).__name__, e))

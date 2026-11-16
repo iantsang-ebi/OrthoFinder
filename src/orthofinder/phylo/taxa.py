@@ -22,6 +22,7 @@ def rename_tree_taxa(
     in_format=None,
     label=None,
     q_via_copy=False,
+    rich_output: bool = True,
 ):
     """
     qViaCopy - create a copy of the tree and edit this copy. I.e. don't make changes to the original
@@ -59,14 +60,24 @@ def rename_tree_taxa(
                 i_node += 1
     if label != None:
         with open(new_tree_filename, "w", encoding="utf-8", newline="\n") as outfile:
-            outfile.write(
-                t.write(format=3)[:-1] + label + "0;"
-            )  # internal + terminal branch lengths, leaf names, node names. (tree library won't label root node)
+            if rich_output:
+                outfile.write(
+                    t.write(format=3, features=["sp_node", "dup", "dup_type"], format_root_node=True)
+                )
+            else:
+                outfile.write(
+                    t.write(format=3)[:-1] + label + "0;"
+                )  # internal + terminal branch lengths, leaf names, node names. (tree library won't label root node)
     elif t.name == "N0" or t.name == "n0":
         with open(new_tree_filename, "w", encoding="utf-8", newline="\n") as outfile:
-            outfile.write(
-                t.write(format=3)[:-1] + t.name + ";"
-            )  # internal + terminal branch lengths, leaf names, node names. (tree library won't label root node)
+            if rich_output:
+                outfile.write(
+                    t.write(format=3, features=["sp_node", "dup", "dup_type"], format_root_node=True)
+                )
+            else:
+                outfile.write(
+                    t.write(format=3)[:-1] + t.name + ";"
+                )  # internal + terminal branch lengths, leaf names, node names. (tree library won't label root node)
     else:
         if q_support or q_have_support:
             t.write(outfile=new_tree_filename, format=2)
